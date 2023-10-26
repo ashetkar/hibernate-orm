@@ -17,10 +17,6 @@ import org.hibernate.type.descriptor.jdbc.*;
 import org.hibernate.type.descriptor.jdbc.spi.JdbcTypeRegistry;
 
 import java.sql.Types;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import static java.util.regex.Pattern.CASE_INSENSITIVE;
 
 public class YugabyteDBDialect extends PostgreSQLDialect {
 
@@ -91,30 +87,9 @@ public class YugabyteDBDialect extends PostgreSQLDialect {
 		);
 	}
 
-	private static final Pattern SQL_STATEMENT_TYPE_PATTERN =
-			Pattern.compile( "^(?:/\\*.*?\\*/)?\\s*(select|insert|update|delete)\\s+.*?", CASE_INSENSITIVE );
-
 	@Override
 	public String getQueryHintString(String sql, String hints) {
-		final String statementType = statementType( sql );
-		final int start = sql.indexOf( statementType );
-		if ( start < 0 ) {
-			return sql;
-		}
-		else {
-			int end = start + statementType.length();
-			return sql.substring( 0, end ) + " /*+ " + hints + " */" + sql.substring( end );
-		}
-	}
-
-	private String statementType(String sql) {
-		final Matcher matcher = SQL_STATEMENT_TYPE_PATTERN.matcher( sql );
-		if ( matcher.matches() && matcher.groupCount() == 1 ) {
-			return matcher.group(1);
-		}
-		else {
-			throw new IllegalArgumentException( "Can't determine SQL statement type for statement: " + sql );
-		}
+		return " /*+ " + hints + " */" + sql;
 	}
 
 	public static boolean isUsable(ServiceRegistry serviceRegistry) {
