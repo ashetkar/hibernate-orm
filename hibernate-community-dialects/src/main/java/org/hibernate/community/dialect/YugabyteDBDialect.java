@@ -89,7 +89,7 @@ public class YugabyteDBDialect extends PostgreSQLDialect {
 
 	@Override
 	public String getQueryHintString(String sql, String hints) {
-		return " /*+ " + hints + " */" + sql;
+		return "/*+ " + hints + " */" + sql;
 	}
 
 	public static boolean isUsable(ServiceRegistry serviceRegistry) {
